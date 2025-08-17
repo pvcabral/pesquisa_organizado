@@ -18,20 +18,14 @@ WITH lista_questoes AS (
         'c4d09d1b-73a5-45c6-8a0d-ead669114b65',
         '1551e3ed-c875-4bb3-8e4e-58407df40776'
     )
-),
-submissoes AS (
-    SELECT s.question_id,
-           COUNT(DISTINCT s.id) AS total_submissions,
-           COUNT(DISTINCT CASE WHEN s.hitPercentage = 100 THEN s.id END) AS correct_submissions
-    FROM lop2teste.submission s
-    LEFT JOIN lista_questoes lq ON lq.question_id = s.question_id
-    WHERE s.class_id = 'd0122069-129b-4207-812d-ab50a082eb18'
-    GROUP BY s.question_id
 )
 SELECT 
     s.question_id,
-    ROUND(ABS(s.correct_submissions - s.total_submissions) / s.total_submissions * 100, 2) AS percentage,
+    COUNT(DISTINCT s.id) AS total_submissions,
     q.title
-FROM submissoes s
+FROM lop2teste.submission s
+LEFT JOIN lista_questoes lq ON lq.question_id = s.question_id
 LEFT JOIN lop2teste.question q ON q.id = s.question_id
-ORDER BY percentage ASC;
+WHERE s.class_id = 'd0122069-129b-4207-812d-ab50a082eb18'
+GROUP BY s.question_id, q.title
+ORDER BY total_submissions DESC;
